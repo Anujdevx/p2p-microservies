@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  service-registry:
+    build: ./service-registry
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+
+  config-server:
+    build: ./config-server
+    ports:
+      - "8888:8888"
+    depends_on:
+      - service-registry
+    networks:
+      - microservices-network
+
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - service-registry
+      - config-server
+    networks:
+      - microservices-network
+
+  user-service:
+    build: ./user-service
+    ports:
+      - "8081:8081"
+    depends_on:
+      - service-registry
+      - config-server
+    networks:
+      - microservices-network
+
+  product-service:
+    build: ./product-service
+    ports:
+      - "8082:8082"
+    depends_on:
+      - service-registry
+      - config-server
+    networks:
+      - microservices-network
+
+  file-transfer-service:
+    build: ./file-transfer-service
+    ports:
+      - "8083:8083"
+    depends_on:
+      - service-registry
+      - config-server
+    networks:
+      - microservices-network
+
+networks:
+  microservices-network:
+    driver: bridge
