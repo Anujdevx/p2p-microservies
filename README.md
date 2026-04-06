@@ -1,4 +1,6 @@
-# Spring Boot Microservices Project
+# P2P Microservices Architecture
+
+A distributed microservices system with peer-to-peer file transfer capabilities.
 
 ## Architecture Overview
 
