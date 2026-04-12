@@ -55,6 +55,26 @@ services:
     networks:
       - microservices-network
 
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - service-registry
+      - config-server
+    networks:
+      - microservices-network
+
+  peer-management-service:
+    build: ./peer-management-service
+    ports:
+      - "8085:8085"
+    depends_on:
+      - service-registry
+      - config-server
+    networks:
+      - microservices-network
+
 networks:
   microservices-network:
     driver: bridge

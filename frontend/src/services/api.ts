@@ -1,11 +1,51 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: '/backend',
+  baseURL: 'http://localhost:8080',
   headers: {
     'Content-Type': 'application/json',
   },
 });
+
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('auth_token');
+    if (token && config.headers) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
+});
+
+export const authService = {
+  authLogin: async (username: string, password: string) => {
+    const response = await api.post('/auth/login', { username, password });
+    if (response.data && response.data.token) {
+      localStorage.setItem('auth_token', response.data.token);
+    }
+    return response.data;
+  },
+  authRegister: (username: string, password: string) => api.post('/auth/register', { username, password }),
+};
+
+export const peerService = {
+  fetchActivePeers: () => api.get('/peers/active'),
+  registerPeer: (peerId: string) => api.post('/peers/register', {
+    peerId,
+    ipAddress: 'localhost',
+    port: 3000,
+    status: 'ACTIVE',
+  }),
+  deregisterPeer: (peerId: string) => api.delete(`/peers/${peerId}/deregister`),
+};
+
+export const networkService = {
+  addContact: (username: string) => api.post(`/network/contacts/${username}`),
+  createGroup: (groupName: string, usernames: string[]) => api.post('/network/groups', { groupName, usernames }),
+  fetchContactPeers: () => api.get('/network/active'),
+  fetchMyGroups: () => api.get('/network/groups/mine'),
+  fetchGroupPeers: (groupId: number) => api.get(`/network/groups/${groupId}/active`),
+};
 
 export const userService = {
   getAllUsers: () => api.get('/users'),

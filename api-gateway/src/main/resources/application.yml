@@ -10,19 +10,46 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders: "*"
       routes:
         - id: user-service
           uri: lb://user-service
           predicates:
             - Path=/users/**
+          filters:
+            - AuthenticationFilter
         - id: product-service
           uri: lb://product-service
           predicates:
             - Path=/products/**
+          filters:
+            - AuthenticationFilter
         - id: file-transfer-service
           uri: lb://file-transfer-service
           predicates:
             - Path=/api/transfers/**,/api/peers/**,/ws/**
+          filters:
+            - AuthenticationFilter
+        - id: auth-service
+          uri: lb://auth-service
+          predicates:
+            - Path=/auth/**
+        - id: peer-management-service
+          uri: lb://peer-management-service
+          predicates:
+            - Path=/peers/**,/network/**
+          filters:
+            - AuthenticationFilter
 
 eureka:
   client:
