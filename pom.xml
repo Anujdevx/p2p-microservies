@@ -24,6 +24,8 @@
         <module>user-service</module>
         <module>product-service</module>
         <module>file-transfer-service</module>
+        <module>auth-service</module>
+        <module>peer-management-service</module>
     </modules>
 
     <properties>

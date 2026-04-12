@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   service-registry:
     build: ./service-registry
@@ -51,6 +49,26 @@ services:
     build: ./file-transfer-service
     ports:
       - "8083:8083"
+    depends_on:
+      - service-registry
+      - config-server
+    networks:
+      - microservices-network
+
+  auth-service:
+    build: ./auth-service
+    ports:
+      - "8084:8084"
+    depends_on:
+      - service-registry
+      - config-server
+    networks:
+      - microservices-network
+
+  peer-management-service:
+    build: ./peer-management-service
+    ports:
+      - "8085:8085"
     depends_on:
       - service-registry
       - config-server
