@@ -21,7 +21,7 @@ export default function FileTransferDashboard() {
   const [targetPeerId, setTargetPeerId] = useState('');
   const [isGroupTransfer, setIsGroupTransfer] = useState(false);
 
-  const { sendToGroup, connectToPeer, connectedPeers, transferProgress: webrtcProgress } = useWebRTC(peerId);
+  const { sendFile, sendToGroup, connectToPeer, connectedPeers, transferProgress: webrtcProgress } = useWebRTC(peerId);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -61,6 +61,19 @@ export default function FileTransferDashboard() {
   const [progress, setProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
+
+  // Resolve a display name for the current target (username or group name)
+  const targetDisplayName = (() => {
+    if (!targetPeerId) return '';
+    if (isGroupTransfer) {
+      const g = activeGroups.find((g: any) => String(g.id) === targetPeerId);
+      return g ? `Mesh: ${g.name}` : targetPeerId;
+    }
+    const contact = activeContacts.find((c: any) =>
+      c.sessionIds && c.sessionIds.includes(targetPeerId)
+    );
+    return contact ? contact.username : targetPeerId;
+  })();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -75,35 +88,22 @@ export default function FileTransferDashboard() {
     try {
       setActiveTransfer({ fileName: selectedFile.name, fileSize: selectedFile.size });
       setUploadSuccess(false);
+      setIsUploading(true);
 
       if (isGroupTransfer) {
-        setIsUploading(true);
         await sendToGroup(parseInt(targetPeerId), selectedFile);
-        setIsUploading(false);
-        setUploadSuccess(true);
       } else {
-        setIsUploading(true);
-        await connectToPeer(targetPeerId);
-        // In a full implementation, you wait for channel to open and stream
-        setTimeout(() => {
-          setIsUploading(false);
-          setUploadSuccess(true);
-        }, 1500);
+        await sendFile(targetPeerId, selectedFile);
       }
+
+      setIsUploading(false);
+      setUploadSuccess(true);
     } catch (err) {
-      console.error('Transfer Init Failed', err);
+      console.error('Transfer failed', err);
       setIsUploading(false);
     }
   };
 
-  const simulateUploadChunk = async () => {
-    // For legacy fallback if WebRTC isn't clicked
-    setIsUploading(true);
-    setTimeout(() => {
-        setIsUploading(false);
-        setUploadSuccess(true);
-    }, 1000);
-  };
 
   const resetShare = () => {
     setSelectedFile(null);
@@ -147,6 +147,8 @@ export default function FileTransferDashboard() {
             <div className="space-y-3">
               <label className="text-sm font-bold text-slate-700 dark:text-zinc-300">Select Peer/Group to Send to</label>
               <select 
+                aria-label="Select peer or group to send file to"
+                title="Select peer or group"
                 value={isGroupTransfer ? `g-${targetPeerId}` : (targetPeerId ? `c-${targetPeerId}` : '')} 
                 onChange={e => {
                   const val = e.target.value;
@@ -163,9 +165,13 @@ export default function FileTransferDashboard() {
                 <option value="" disabled>Select an active contact or group...</option>
                 <optgroup label="Online Contacts">
                   {activeContacts.map(c => (
-                    <option key={`c-${c.peerId}`} value={`c-${c.peerId}`}>
-                      {c.peerId}
-                    </option>
+                    c.sessionIds && c.sessionIds.length > 0
+                      ? c.sessionIds.map((sid: string) => (
+                          <option key={`c-${sid}`} value={`c-${sid}`}>
+                            {c.username} {c.sessionIds.length > 1 ? `(tab ${c.sessionIds.indexOf(sid) + 1})` : ''}
+                          </option>
+                        ))
+                      : null
                   ))}
                 </optgroup>
                 <optgroup label="Your Mesh Groups">
@@ -183,7 +189,7 @@ export default function FileTransferDashboard() {
             className={`border-[3px] border-dashed rounded-3xl p-10 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-300 ${selectedFile ? 'bg-primary/5 dark:bg-primary/10 border-primary' : 'hover:bg-zinc-50 dark:hover:bg-zinc-800 border-zinc-300 dark:border-zinc-700 hover:border-zinc-400'}`}
             onClick={() => fileInputRef.current?.click()}
           >
-            <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} />
+            <input type="file" className="hidden" ref={fileInputRef} onChange={handleFileChange} aria-label="Choose a file to share" title="Choose a file to share" />
             {selectedFile ? (
               <div className="animate-in zoom-in duration-300">
                 <File className="w-16 h-16 text-primary mb-4 mx-auto dark:drop-shadow-none" />
@@ -218,7 +224,7 @@ export default function FileTransferDashboard() {
              <CardTitle className="text-2xl font-black flex items-center gap-2">
                Sending Journey
              </CardTitle>
-             <CardDescription className="text-base mt-2 font-medium">Watch your file travel to {targetPeerId || 'your friend'}.</CardDescription>
+             <CardDescription className="text-base mt-2 font-medium">Watch your file travel to {targetDisplayName || 'your friend'}.</CardDescription>
           </div>
           <CardContent className="p-8">
             {!activeTransfer ? (
@@ -257,7 +263,7 @@ export default function FileTransferDashboard() {
                          <CheckCircle2 className="w-10 h-10 text-[#09090b]" />
                        </div>
                        <h4 className="font-black text-xl text-primary">Sent Successfully!</h4>
-                       <p className="text-zinc-600 dark:text-zinc-400 font-medium">Your friend {targetPeerId} can now receive it safely.</p>
+                       <p className="text-zinc-600 dark:text-zinc-400 font-medium">Your friend {targetDisplayName} can now receive it safely.</p>
                        
                        <Button variant="outline" className="mt-4 rounded-xl border-zinc-200 dark:border-zinc-800 hover:bg-zinc-100 dark:hover:bg-zinc-800" onClick={resetShare}>
                          Share another

@@ -74,7 +74,7 @@ public class NetworkController {
             return Boolean.TRUE.equals(response.getBody());
         } catch (Exception e) {
             // If auth-service is unreachable, fail open (don't block)
-            return true;
+            return false;
         }
     }
 
