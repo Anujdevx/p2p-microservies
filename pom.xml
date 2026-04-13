@@ -20,12 +20,10 @@
     <modules>
         <module>service-registry</module>
         <module>api-gateway</module>
-        <module>config-server</module>
-        <module>user-service</module>
-        <module>product-service</module>
-        <module>file-transfer-service</module>
         <module>auth-service</module>
         <module>peer-management-service</module>
+        <module>file-transfer-service</module>
+        <module>file-metadata-service</module>
     </modules>
 
     <properties>

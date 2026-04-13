@@ -46,18 +46,13 @@ export const networkService = {
   fetchGroupPeers: (groupId: number) => api.get(`/network/groups/${groupId}/active`),
 };
 
-export const userService = {
-  getAllUsers: () => api.get('/users'),
-  getUserById: (id: number) => api.get(`/users/${id}`),
-  createUser: (user: any) => api.post('/users', user),
-  deleteUser: (id: number) => api.delete(`/users/${id}`),
-};
-
-export const productService = {
-  getAllProducts: () => api.get('/products'),
-  getProductById: (id: number) => api.get(`/products/${id}`),
-  createProduct: (product: any) => api.post('/products', product),
-  deleteProduct: (id: number) => api.delete(`/products/${id}`),
+export const fileMetadataService = {
+  createMetadata: (metadata: any) => api.post('/api/file-metadata', metadata),
+  getMetadata: (fileId: string) => api.get(`/api/file-metadata/${fileId}`),
+  getMetadataByOwner: (ownerId: string) => api.get(`/api/file-metadata/owner/${ownerId}`),
+  getAllMetadata: () => api.get('/api/file-metadata'),
+  updateMetadata: (fileId: string, metadata: any) => api.put(`/api/file-metadata/${fileId}`, metadata),
+  deleteMetadata: (fileId: string) => api.delete(`/api/file-metadata/${fileId}`),
 };
 
 export const fileTransferService = {
