@@ -6,42 +6,30 @@ services:
     networks:
       - microservices-network
 
-  config-server:
-    build: ./config-server
-    ports:
-      - "8888:8888"
-    depends_on:
-      - service-registry
-    networks:
-      - microservices-network
-
   api-gateway:
     build: ./api-gateway
     ports:
       - "8080:8080"
     depends_on:
       - service-registry
-      - config-server
     networks:
       - microservices-network
 
-  user-service:
-    build: ./user-service
+  auth-service:
+    build: ./auth-service
     ports:
-      - "8081:8081"
+      - "8085:8085"
     depends_on:
       - service-registry
-      - config-server
     networks:
       - microservices-network
 
-  product-service:
-    build: ./product-service
+  peer-management-service:
+    build: ./peer-management-service
     ports:
-      - "8082:8082"
+      - "8086:8086"
     depends_on:
       - service-registry
-      - config-server
     networks:
       - microservices-network
 
@@ -51,27 +39,15 @@ services:
       - "8083:8083"
     depends_on:
       - service-registry
-      - config-server
     networks:
       - microservices-network
 
-  auth-service:
-    build: ./auth-service
+  file-metadata-service:
+    build: ./file-metadata-service
     ports:
       - "8084:8084"
     depends_on:
       - service-registry
-      - config-server
-    networks:
-      - microservices-network
-
-  peer-management-service:
-    build: ./peer-management-service
-    ports:
-      - "8085:8085"
-    depends_on:
-      - service-registry
-      - config-server
     networks:
       - microservices-network
 
