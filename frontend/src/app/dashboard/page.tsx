@@ -1,7 +1,8 @@
-import { FileTransferDashboard } from '@/components/FileTransferDashboard';
 import { ModeToggle } from '@/components/mode-toggle';
 import { Sparkles } from 'lucide-react';
 import FileTransferDashboardDefault from '@/components/FileTransferDashboard';
+import { FileMetadataDashboard } from '@/components/FileMetadataDashboard';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function Home() {
   return (
@@ -17,7 +18,7 @@ export default function Home() {
               Peerlink Control Center
             </h1>
             <p className="mt-4 text-lg md:text-xl text-zinc-600 dark:text-zinc-400 max-w-2xl font-medium">
-              Your dedicated local hub to transfer massive files securely and blazing fast.
+              Your dedicated local hub for secure P2P file transfers and metadata management.
             </p>
           </div>
           <div className="mt-8 md:mt-0 flex items-center gap-4">
@@ -33,7 +34,18 @@ export default function Home() {
         </header>
 
         <main className="mt-12 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <FileTransferDashboardDefault />
+          <Tabs defaultValue="transfer" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 mb-8">
+              <TabsTrigger value="transfer">File Transfer</TabsTrigger>
+              <TabsTrigger value="metadata">File Metadata</TabsTrigger>
+            </TabsList>
+            <TabsContent value="transfer">
+              <FileTransferDashboardDefault />
+            </TabsContent>
+            <TabsContent value="metadata">
+              <FileMetadataDashboard />
+            </TabsContent>
+          </Tabs>
         </main>
       </div>
     </div>
